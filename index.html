@@ -3,54 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ConceptNet — Пространство дизайна</title>
+    <title>Qasr — Пространство дизайна</title>
     <style>
-        /* Стильный минималистичный дизайн */
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; display: flex; justify-content: center; color: #1a1a1a; }
         .app-container { width: 100%; max-width: 450px; min-height: 100vh; background: #ffffff; box-shadow: 0 0 30px rgba(0,0,0,0.03); display: flex; flex-direction: column; position: relative; }
-        
-        /* Черная строгая шапка (Архитектурный стиль) */
         header { position: sticky; top: 0; background: #111111; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; color: white; }
         header h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
-        
         .feed { padding: 20px 15px; padding-bottom: 90px; flex: 1; }
-        
-        /* Карточки постов с мягкими тенями */
         .post { background: #ffffff; border: 1px solid #eaeaea; border-radius: 20px; padding: 18px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.01); }
         .post-header { display: flex; align-items: center; margin-bottom: 12px; }
         .avatar { width: 44px; height: 44px; background: #e5e5e5; border-radius: 50%; margin-right: 12px; background-size: cover; background-position: center; }
         .author-info { display: flex; flex-direction: column; }
         .author-name { font-weight: 600; color: #111111; font-size: 15px; }
         .author-role { color: #86868b; font-size: 12px; margin-top: 2px; }
-        .post-text { font-size: 15px; color: #333333; line-height: 1.5; margin-bottom: 12px; }
-        
-        /* Блок для загруженной картинки в посте */
+        .post-text { font-size: 15px; color: #333333; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; }
         .post-image { width: 100%; border-radius: 12px; margin-top: 10px; display: block; max-height: 300px; object-fit: cover; border: 1px solid #f0f0f0; }
-        
         .post-actions { margin-top: 14px; padding-top: 10px; border-top: 1px solid #f5f5f7; }
         .btn-like { background: none; border: none; color: #86868b; font-weight: 600; cursor: pointer; padding: 6px 12px; border-radius: 20px; background-color: #f5f5f7; font-size: 13px; }
         .btn-like:hover { background-color: #ffeef2; color: #ff3b30; }
         
-        /* Окно создания поста */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
         .modal-content { background: white; padding: 24px; border-radius: 24px; width: 90%; max-width: 400px; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .modal h2 { margin-top: 0; font-size: 20px; color: #111111; font-weight: 700; }
         textarea { width: 100%; height: 110px; border: 1px solid #e5e5e5; border-radius: 12px; padding: 12px; box-sizing: border-box; font-family: inherit; resize: none; margin-bottom: 12px; font-size: 14px; }
-        textarea:focus { border-color: #111111; outline: none; }
         
-        /* Кнопка загрузки фото */
         .file-input-label { display: inline-flex; align-items: center; gap: 8px; color: #515154; font-size: 14px; font-weight: 600; cursor: pointer; padding: 10px 14px; background: #f5f5f7; border-radius: 12px; margin-bottom: 20px; width: 100%; box-sizing: border-box; justify-content: center; border: 1px dashed #cccccc; }
-        .file-input-label:hover { background: #eaeaea; }
         #fileInput { display: none; }
         .img-preview { width: 100%; max-height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; display: none; }
-
         .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
         .btn { padding: 10px 20px; border-radius: 24px; border: none; font-weight: 600; cursor: pointer; font-size: 14px; }
         .btn-cancel { background: #f5f5f7; color: #111111; }
         .btn-submit { background: #111111; color: white; }
-
-        /* Черное строгое меню внизу */
-        nav { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: #111111; display: flex; justify-content: space-around; padding: 16px 0; z-index: 10; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
+        nav { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: #111111; display: flex; justify-content: space-around; padding: 16px 0; z-index: 10; }
         .nav-item { background: none; border: none; font-size: 22px; cursor: pointer; color: #86868b; }
         .nav-item.active { color: #ffffff; }
     </style>
@@ -64,7 +48,7 @@
         </header>
 
         <div class="feed" id="mainFeed">
-            <!-- Сюда загружаются посты -->
+            <!-- Сюда будут подгружаться посты со ВСЕХ телефонов в мире -->
         </div>
 
         <nav>
@@ -74,19 +58,13 @@
         </nav>
     </div>
 
-    <!-- Модальное окно с загрузкой картинки -->
     <div class="modal" id="postModal">
         <div class="modal-content">
             <h2>Новая публикация</h2>
             <textarea id="postText" placeholder="Опишите ваш архитектурный концепт..."></textarea>
-            
-            <!-- Поле выбора картинки -->
-            <label class="file-input-label" for="fileInput">
-                🖼️ Прикрепить чертеж или фото
-            </label>
+            <label class="file-input-label" for="fileInput">🖼️ Прикрепить чертеж или фото</label>
             <input type="file" id="fileInput" accept="image/*">
             <img class="img-preview" id="imgPreview" alt="Превью">
-
             <div class="modal-buttons">
                 <button class="btn btn-cancel" id="btnCancel">Отмена</button>
                 <button class="btn btn-submit" id="btnPublish">Опубликовать</button>
@@ -94,7 +72,7 @@
         </div>
     </div>
 
-     <script>
+    <script>
         const modal = document.getElementById('postModal');
         const btnOpenModal = document.getElementById('btnOpenModal');
         const btnCancel = document.getElementById('btnCancel');
@@ -105,11 +83,9 @@
         const mainFeed = document.getElementById('mainFeed');
 
         let uploadedImageBase64 = "";
-
-        const defaultPosts = [
-            { id: 1, name: "Ашурализод Шерзод", role: "Архитектор • 2 часа назад", text: "Закончил эскизный проект виллы в Сочи. Основной упор сделали на эксплуатируемую кровлю и интеграцию здания в горный рельеф. Как вам пластика фасада?", image: "", likes: 15, likedByUser: false },
-            { id: 2, name: "Шерзод Дизайн", role: "Интерьеры • 5 часов назад", text: "Подбираю текстиль и финишные материалы для нового объекта. Ловите минималистичный мудборд в пастельных тонах. Какой цвет у вас фаворит этой весной?", image: "", likes: 32, likedByUser: false }
-        ];
+        
+        // Адрес вашей личной созданной базы данных Firebase
+        const databaseUrl = "firebaseio.com";
 
         fileInput.onchange = function() {
             const file = this.files[0];
@@ -124,96 +100,88 @@
             }
         };
 
-        function renderFeed() {
-            mainFeed.innerHTML = '';
-            const savedPosts = JSON.parse(localStorage.getItem('my_social_posts')) || defaultPosts;
-            
-            savedPosts.forEach(post => {
-                const postElement = document.createElement('div');
-                postElement.className = 'post';
+        // Загрузка общих постов из облака
+        async function loadFeed() {
+            try {
+                const response = await fetch(databaseUrl);
+                const data = await response.json();
+                mainFeed.innerHTML = '';
                 
-                let imageTag = post.image ? `<img src="${post.image}" class="post-image">` : "";
-                
-                // Красим кнопку, если лайк уже поставлен вами
-                let likeColor = post.likedByUser ? "background-color: #ffeef2; color: #ff3b30;" : "";
+                if (!data) {
+                    mainFeed.innerHTML = '<p style="text-align:center;color:#86868b;margin-top:20px;">Постов пока нет. Будьте первым!</p>';
+                    return;
+                }
 
-                postElement.innerHTML = `
-                    <div class="post-header">
-                        <div class="avatar" style="background-color: ${post.image ? '#111' : '#e5e5e5'}"></div>
-                        <div class="author-info">
-                            <span class="author-name">${post.name}</span>
-                            <span class="author-role">${post.role}</span>
+                // Превращаем объект в массив и переворачиваем, чтобы новые были сверху
+                const postsArray = Object.keys(data).map(key => data[key]).reverse();
+
+                postsArray.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.className = 'post';
+                    let imageTag = post.image ? `<img src="${post.image}" class="post-image">` : "";
+                    postElement.innerHTML = `
+                        <div class="post-header">
+                            <div class="avatar" style="background-color: ${post.image ? '#111' : '#e5e5e5'}"></div>
+                            <div class="author-info">
+                                <span class="author-name">${post.name}</span>
+                                <span class="author-role">${post.role}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="post-text">${post.text}</div>
-                    ${imageTag}
-                    <div class="post-actions">
-                        <button class="btn-like" style="${likeColor}" onclick="likePost(${post.id})">
-                            ❤️ ${post.likes || 0}
-                        </button>
-                    </div>
-                `;
-                mainFeed.appendChild(postElement);
-            });
+                        <div class="post-text">${post.text}</div>
+                        ${imageTag}
+                        <div class="post-actions"><button class="btn-like">❤️ 0</button></div>
+                    `;
+                    mainFeed.appendChild(postElement);
+                });
+            } catch (e) {
+                console.error("Ошибка сети", e);
+            }
         }
 
-        // Умная функция лайка: ставит и убирает
-        window.likePost = function(id) {
-            const savedPosts = JSON.parse(localStorage.getItem('my_social_posts')) || defaultPosts;
-            const post = savedPosts.find(p => p.id === id);
-            
-            if (post) {
-                if (post.likedByUser) {
-                    // Если лайк уже стоял — уменьшаем счетчик и забираем лайк
-                    post.likes = (post.likes || 1) - 1;
-                    post.likedByUser = false;
-                } else {
-                    // Если лайка не было — прибавляем 1 и помечаем как "лайкнуто"
-                    post.likes = (post.likes || 0) + 1;
-                    post.likedByUser = true;
-                }
-                localStorage.setItem('my_social_posts', JSON.stringify(savedPosts));
-                renderFeed();
-            }
-        };
-
         btnOpenModal.onclick = () => { modal.style.display = 'flex'; };
-        
         btnCancel.onclick = () => { 
-            modal.style.display = 'none'; 
-            postText.value = ''; 
-            fileInput.value = '';
-            imgPreview.style.display = 'none';
-            uploadedImageBase64 = "";
+            modal.style.display = 'none'; postText.value = ''; fileInput.value = '';
+            imgPreview.style.display = 'none'; uploadedImageBase64 = "";
         };
 
-        btnPublish.onclick = () => {
-            if(postText.value.trim() === "" && !uploadedImageBase64) return alert("Напишите текст или добавьте фото!");
+        // Публикация в глобальное облако Google Firebase
+        btnPublish.onclick = async () => {
+            if(postText.value.trim() === "" && !uploadedImageBase64) return alert("Напишите текст!");
             
-            const savedPosts = JSON.parse(localStorage.getItem('my_social_posts')) || defaultPosts;
-            
+            btnPublish.innerText = "Публикация...";
+            btnPublish.disabled = true;
+
             const newPostData = {
-                id: Date.now(),
                 name: "Ашурализод Шерзод",
                 role: "Архитектор • Только что",
                 text: postText.value,
-                image: uploadedImageBase64,
-                likes: 0,
-                likedByUser: false
+                image: uploadedImageBase64
             };
-            
-            savedPosts.unshift(newPostData);
-            localStorage.setItem('my_social_posts', JSON.stringify(savedPosts));
-            
-            modal.style.display = 'none';
-            postText.value = '';
-            fileInput.value = '';
-            imgPreview.style.display = 'none';
-            uploadedImageBase64 = "";
-            renderFeed();
+
+            try {
+                // Отправляем данные на сервер методом POST
+                await fetch(databaseUrl, {
+                    method: 'POST',
+                    body: JSON.stringify(newPostData),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                modal.style.display = 'none';
+                postText.value = '';
+                fileInput.value = '';
+                imgPreview.style.display = 'none';
+                uploadedImageBase64 = "";
+                loadFeed();
+            } catch(e) {
+                alert("Ошибка отправки на сервер!");
+            } finally {
+                btnPublish.innerText = "Опубликовать";
+                btnPublish.disabled = false;
+            }
         };
 
-        renderFeed();
+        // Запуск при открытии приложения
+        loadFeed();
     </script>
 </body>
 </html>
