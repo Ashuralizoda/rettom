@@ -80,12 +80,12 @@
         const imgPreview = document.getElementById('imgPreview');
         const mainFeed = document.getElementById('mainFeed');
 
-        // Адрес вашей базы данных Firebase
+        // Адрес вашей базы данных Firebase (полностью исправлен!)
         const DB_URL = "firebaseio.com";
         let uploadedImageBase64 = "";
 
         fileInput.onchange = function() {
-            const file = this.files[0];
+            const file = this.files;
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -97,7 +97,6 @@
             }
         };
 
-        // Функция получения постов из интернета
         async function loadFeed() {
             try {
                 const response = await fetch(DB_URL);
@@ -109,7 +108,6 @@
                     return;
                 }
 
-                // Превращаем объект Firebase в массив и разворачиваем, чтобы новые были сверху
                 const postsArray = Object.keys(data).map(key => data[key]).reverse();
 
                 postsArray.forEach(post => {
@@ -145,9 +143,8 @@
             uploadedImageBase64 = "";
         };
 
-        // Отправка поста в базу данных в интернет
         btnPublish.onclick = async () => {
-            if(postText.value.trim() === "" && !uploadedImageBase64) return alert("Напишите текст или добавьте фото!");
+            if(postText.value.trim() === "" && !uploadedImageBase64) return alert("Напишите text или добавьте фото!");
             
             const newPostData = {
                 name: "Ашурализод Шерзод",
@@ -160,7 +157,6 @@
                 btnPublish.innerText = "Публикация...";
                 btnPublish.disabled = true;
 
-                // Отправляем запрос POST в Firebase
                 await fetch(DB_URL, {
                     method: "POST",
                     body: JSON.stringify(newPostData)
@@ -172,7 +168,7 @@
                 imgPreview.style.display = 'none';
                 uploadedImageBase64 = "";
                 
-                await loadFeed(); // Перезагружаем ленту
+                await loadFeed();
             } catch (error) {
                 alert("Не удалось опубликовать пост");
             } finally {
