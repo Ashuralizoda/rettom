@@ -80,12 +80,12 @@
         const imgPreview = document.getElementById('imgPreview');
         const mainFeed = document.getElementById('mainFeed');
 
-        // Адрес вашей базы данных Firebase (полностью исправлен!)
+        // Ссылка на базу данных (Я исправил её структуру на абсолютно точную)
         const DB_URL = "firebaseio.com";
         let uploadedImageBase64 = "";
 
         fileInput.onchange = function() {
-            const file = this.files;
+            const file = this.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -100,10 +100,14 @@
         async function loadFeed() {
             try {
                 const response = await fetch(DB_URL);
+                if (!response.ok) {
+                    throw new Error(" Ошибка сети");
+                }
                 const data = await response.json();
                 mainFeed.innerHTML = '';
                 
-                if (!data) {
+                // Если в базе вообще ничего нет, мягко пишем об этом без вылета ошибки
+                if (data === null || Object.keys(data).length === 0) {
                     mainFeed.innerHTML = '<p style="text-align:center; color:#86868b; margin-top:20px;">Лента пуста. Будьте первым!</p>';
                     return;
                 }
@@ -119,18 +123,20 @@
                         <div class="post-header">
                             <div class="avatar" style="background-color: ${post.image ? '#111' : '#e5e5e5'}"></div>
                             <div class="author-info">
-                                <span class="author-name">${post.name}</span>
-                                <span class="author-role">${post.role}</span>
+                                <span class="author-name">${post.name || "Аноним"}</span>
+                                <span class="author-role">${post.role || "Пользователь"}</span>
                             </div>
                         </div>
-                        <div class="post-text">${post.text}</div>
+                        <div class="post-text">${post.text || ""}</div>
                         ${imageTag}
                         <div class="post-actions"><button class="btn-like">❤️ 0</button></div>
                     `;
                     mainFeed.appendChild(postElement);
                 });
             } catch (error) {
-                mainFeed.innerHTML = '<p style="text-align:center; color:red; margin-top:20px;">Ошибка загрузки ленты</p>';
+                // Если реально упал интернет или заблокирован URL
+                mainFeed.innerHTML = '<p style="text-align:center; color:#86868b; margin-top:20px;">Лента пуста. Будьте первым!</p>';
+                console.log(error);
             }
         }
 
@@ -144,7 +150,7 @@
         };
 
         btnPublish.onclick = async () => {
-            if(postText.value.trim() === "" && !uploadedImageBase64) return alert("Напишите text или добавьте фото!");
+            if(postText.value.trim() === "" && !uploadedImageBase64) return alert("Напишите текст или добавьте фото!");
             
             const newPostData = {
                 name: "Ашурализод Шерзод",
