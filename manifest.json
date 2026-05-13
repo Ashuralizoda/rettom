@@ -1,0 +1,15 @@
+{
+  "short_name": "Qasr",
+  "name": "Qasr — Пространство дизайна",
+  "icons": [
+    {
+      "src": "flaticon.com",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#111111",
+  "display": "standalone",
+  "theme_color": "#111111"
+}
