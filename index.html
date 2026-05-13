@@ -8,12 +8,9 @@
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; display: flex; justify-content: center; color: #1a1a1a; }
         .app-container { width: 100%; max-width: 450px; min-height: 100vh; background: #ffffff; box-shadow: 0 0 30px rgba(0,0,0,0.03); display: flex; flex-direction: column; position: relative; }
-        
         header { position: sticky; top: 0; background: #111111; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; color: white; }
         header h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
-        
         .feed { padding: 20px 15px; padding-bottom: 90px; flex: 1; }
-        
         .post { background: #ffffff; border: 1px solid #eaeaea; border-radius: 20px; padding: 18px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.01); }
         .post-header { display: flex; align-items: center; margin-bottom: 12px; }
         .avatar { width: 44px; height: 44px; background: #e5e5e5; border-radius: 50%; margin-right: 12px; background-size: cover; background-position: center; }
@@ -21,30 +18,21 @@
         .author-name { font-weight: 600; color: #111111; font-size: 15px; }
         .author-role { color: #86868b; font-size: 12px; margin-top: 2px; }
         .post-text { font-size: 15px; color: #333333; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; }
-        
         .post-image { width: 100%; border-radius: 12px; margin-top: 10px; display: block; max-height: 300px; object-fit: cover; border: 1px solid #f0f0f0; }
-        
         .post-actions { margin-top: 14px; padding-top: 10px; border-top: 1px solid #f5f5f7; }
         .btn-like { background: none; border: none; color: #86868b; font-weight: 600; cursor: pointer; padding: 6px 12px; border-radius: 20px; background-color: #f5f5f7; font-size: 13px; }
-        .btn-like:hover { background-color: #ffeef2; color: #ff3b30; }
-        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
         .modal-content { background: white; padding: 24px; border-radius: 24px; width: 90%; max-width: 400px; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .modal h2 { margin-top: 0; font-size: 20px; color: #111111; font-weight: 700; }
         textarea { width: 100%; height: 110px; border: 1px solid #e5e5e5; border-radius: 12px; padding: 12px; box-sizing: border-box; font-family: inherit; resize: none; margin-bottom: 12px; font-size: 14px; }
-        textarea:focus { border-color: #111111; outline: none; }
-        
         .file-input-label { display: inline-flex; align-items: center; gap: 8px; color: #515154; font-size: 14px; font-weight: 600; cursor: pointer; padding: 10px 14px; background: #f5f5f7; border-radius: 12px; margin-bottom: 20px; width: 100%; box-sizing: border-box; justify-content: center; border: 1px dashed #cccccc; }
-        .file-input-label:hover { background: #eaeaea; }
         #fileInput { display: none; }
         .img-preview { width: 100%; max-height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; display: none; }
-
         .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
         .btn { padding: 10px 20px; border-radius: 24px; border: none; font-weight: 600; cursor: pointer; font-size: 14px; }
         .btn-cancel { background: #f5f5f7; color: #111111; }
         .btn-submit { background: #111111; color: white; }
-
-        nav { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: #111111; display: flex; justify-content: space-around; padding: 16px 0; z-index: 10; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
+        nav { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: #111111; display: flex; justify-content: space-around; padding: 16px 0; z-index: 10; }
         .nav-item { background: none; border: none; font-size: 22px; cursor: pointer; color: #86868b; }
         .nav-item.active { color: #ffffff; }
     </style>
@@ -58,7 +46,7 @@
         </header>
 
         <div class="feed" id="mainFeed">
-            <!-- Сюда подгружаются посты из Firebase -->
+            <p style="text-align:center; color:#86868b; margin-top:20px;">Загрузка ленты...</p>
         </div>
 
         <nav>
@@ -72,13 +60,9 @@
         <div class="modal-content">
             <h2>Новая публикация</h2>
             <textarea id="postText" placeholder="Опишите ваш архитектурный концепт..."></textarea>
-            
-            <label class="file-input-label" for="fileInput">
-                🖼️ Прикрепить чертеж или фото
-            </label>
+            <label class="file-input-label" for="fileInput">🖼️ Прикрепить чертеж или фото</label>
             <input type="file" id="fileInput" accept="image/*">
             <img class="img-preview" id="imgPreview" alt="Превью">
-
             <div class="modal-buttons">
                 <button class="btn btn-cancel" id="btnCancel">Отмена</button>
                 <button class="btn btn-submit" id="btnPublish">Опубликовать</button>
@@ -96,12 +80,10 @@
         const imgPreview = document.getElementById('imgPreview');
         const mainFeed = document.getElementById('mainFeed');
 
+        // Адрес вашей базы данных Firebase
+        const DB_URL = "firebaseio.com";
         let uploadedImageBase64 = "";
-        
-        // Ваша личная рабочая ссылка на базу данных Firebase
-        const databaseUrl = "firebaseio.com";
 
-        // Показ превью картинки при выборе
         fileInput.onchange = function() {
             const file = this.files[0];
             if (file) {
@@ -115,49 +97,46 @@
             }
         };
 
-        // Отрисовка постов из облака
-        function displayPosts(postsData) {
-            mainFeed.innerHTML = '';
-            if (!postsData) {
-                mainFeed.innerHTML = '<p style="text-align:center; color:#86868b; padding:40px 20px; font-size:14px;">В ленте Qasr пока нет публикаций.<br>Будьте первым, кто поделится проектом!</p>';
-                return;
-            }
-            
-            Object.keys(postsData).reverse().forEach(key => {
-                const post = postsData[key];
-                let imageTag = post.image ? `<img src="${post.image}" class="post-image">` : "";
-                const postElement = document.createElement('div');
-                postElement.className = 'post';
-                postElement.innerHTML = `
-                    <div class="post-header">
-                        <div class="avatar" style="background-color: ${post.image ? '#111' : '#e5e5e5'}"></div>
-                        <div class="author-info">
-                            <span class="author-name">${post.name}</span>
-                            <span class="author-role">${post.role}</span>
-                        </div>
-                    </div>
-                    <div class="post-text">${post.text}</div>
-                    ${imageTag}
-                    <div class="post-actions"><button class="btn-like">❤️ 0</button></div>
-                `;
-                mainFeed.appendChild(postElement);
-            });
-        }
-
-        // Загрузка данных с сервера
+        // Функция получения постов из интернета
         async function loadFeed() {
             try {
-                const response = await fetch(`${databaseUrl}/posts.json`);
-                if (!response.ok) throw new Error();
+                const response = await fetch(DB_URL);
                 const data = await response.json();
-                displayPosts(data);
+                mainFeed.innerHTML = '';
+                
+                if (!data) {
+                    mainFeed.innerHTML = '<p style="text-align:center; color:#86868b; margin-top:20px;">Лента пуста. Будьте первым!</p>';
+                    return;
+                }
+
+                // Превращаем объект Firebase в массив и разворачиваем, чтобы новые были сверху
+                const postsArray = Object.keys(data).map(key => data[key]).reverse();
+
+                postsArray.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.className = 'post';
+                    let imageTag = post.image ? `<img src="${post.image}" class="post-image">` : "";
+
+                    postElement.innerHTML = `
+                        <div class="post-header">
+                            <div class="avatar" style="background-color: ${post.image ? '#111' : '#e5e5e5'}"></div>
+                            <div class="author-info">
+                                <span class="author-name">${post.name}</span>
+                                <span class="author-role">${post.role}</span>
+                            </div>
+                        </div>
+                        <div class="post-text">${post.text}</div>
+                        ${imageTag}
+                        <div class="post-actions"><button class="btn-like">❤️ 0</button></div>
+                    `;
+                    mainFeed.appendChild(postElement);
+                });
             } catch (error) {
-                mainFeed.innerHTML = '<p style="text-align:center; color:#ff3b30; padding:20px; font-size:14px;">Ошибка синхронизации с облаком Firebase</p>';
+                mainFeed.innerHTML = '<p style="text-align:center; color:red; margin-top:20px;">Ошибка загрузки ленты</p>';
             }
         }
 
         btnOpenModal.onclick = () => { modal.style.display = 'flex'; };
-        
         btnCancel.onclick = () => { 
             modal.style.display = 'none'; 
             postText.value = ''; 
@@ -166,9 +145,9 @@
             uploadedImageBase64 = "";
         };
 
-        // Отправка поста в облако Firebase
+        // Отправка поста в базу данных в интернет
         btnPublish.onclick = async () => {
-            if(postText.value.trim() === "" && !uploadedImageBase64) return alert("Напишите текст или добавьте изображение!");
+            if(postText.value.trim() === "" && !uploadedImageBase64) return alert("Напишите текст или добавьте фото!");
             
             const newPostData = {
                 name: "Ашурализод Шерзод",
@@ -176,31 +155,33 @@
                 text: postText.value,
                 image: uploadedImageBase64
             };
-            
+
             try {
-                const response = await fetch(`${databaseUrl}/posts.json`, {
-                    method: 'POST',
+                btnPublish.innerText = "Публикация...";
+                btnPublish.disabled = true;
+
+                // Отправляем запрос POST в Firebase
+                await fetch(DB_URL, {
+                    method: "POST",
                     body: JSON.stringify(newPostData)
                 });
+
+                modal.style.display = 'none';
+                postText.value = '';
+                fileInput.value = '';
+                imgPreview.style.display = 'none';
+                uploadedImageBase64 = "";
                 
-                if(response.ok) {
-                    modal.style.display = 'none';
-                    postText.value = '';
-                    fileInput.value = '';
-                    imgPreview.style.display = 'none';
-                    uploadedImageBase64 = "";
-                    loadFeed();
-                } else {
-                    alert("Сервер отклонил публикацию");
-                }
+                await loadFeed(); // Перезагружаем ленту
             } catch (error) {
-                alert("Ошибка сети при отправке в Qasr");
+                alert("Не удалось опубликовать пост");
+            } finally {
+                btnPublish.innerText = "Опубликовать";
+                btnPublish.disabled = false;
             }
         };
 
-        // Первый запуск и обновление каждые 7 секунд
         loadFeed();
-        setInterval(loadFeed, 7000);
     </script>
 </body>
 </html>
