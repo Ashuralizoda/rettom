@@ -3,274 +3,391 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>qasr — Архитектурная соцсеть</title>
+  <title>qasr — Architectural Network</title>
   <style>
     :root {
-      --bg-color: #f8f9fa;
-      --card-bg: #ffffff;
-      --primary: #2a2a2a;
-      --accent: #ff2a6d;
-      --text: #333333;
-      --border: #e0e0e0;
+      --bg: #0a0a0c;
+      --card-bg: #141417;
+      --border: #26262b;
+      --text: #f3f4f6;
+      --text-muted: #8e939e;
+      --accent: #ff3366;
+      --accent-dim: rgba(255, 51, 102, 0.1);
+      --primary: #ffffff;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-color); color: var(--text); line-height: 1.5; }
-    header { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 15px 20px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
-    header h1 { font-size: 24px; font-weight: 800; letter-spacing: 1px; color: var(--primary); }
-    .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 50px; }
     
-    /* Форма создания поста */
-    .create-post { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 25px; }
-    .create-post input, .create-post textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; }
-    .create-post textarea { resize: vertical; height: 80px; }
-    .create-post button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: background 0.2s; }
-    .create-post button:hover { background: #444; }
-
-    /* Лента постов */
-    .feed { display: flex; flex-direction: column; gap: 20px; }
-    .post { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
-    .post-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f5f5f5; }
-    .post-author { font-weight: bold; font-size: 15px; }
-    .post-image { width: 100%; max-height: 400px; object-fit: cover; background: #eee; }
-    .post-content { padding: 15px; }
-    .post-title { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
-    .post-desc { font-size: 14px; color: #555; }
+    header { background: rgba(20, 20, 23, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 15px 20px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 22px; font-weight: 900; letter-spacing: 2px; color: var(--primary); text-transform: uppercase; }
     
-    /* Кнопка Лайка */
-    .post-actions { padding: 0 15px 15px; display: flex; gap: 15px; border-bottom: 1px solid #f5f5f5; }
-    .like-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); padding: 6px 15px; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 14px; }
-    .like-btn.active { border-color: var(--accent); background: #fff0f5; color: var(--accent); }
-    .like-btn.active .like-icon { transform: scale(1.2); }
-    .like-icon { transition: transform 0.2s; }
+    .container { max-width: 650px; margin: 20px auto; padding: 0 16px; }
+    
+    /* Категории / Фильтры */
+    .categories { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+    .cat-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; white-space: nowrap; transition: all 0.2s; }
+    .cat-btn.active, .cat-btn:hover { background: var(--primary); color: var(--bg); border-color: var(--primary); }
 
-    /* Комментарии */
-    .comments-section { padding: 15px; background: #fafafa; }
-    .comments-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; max-height: 150px; overflow-y: auto; }
-    .comment-item { font-size: 13px; line-height: 1.4; }
-    .comment-author { font-weight: bold; margin-right: 5px; }
+    /* Форма создания */
+    .create-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 30px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .create-card input, .create-card select, .create-card textarea { width: 100%; background: #1c1c21; border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-size: 14px; outline: none; transition: border 0.2s; }
+    .create-card input:focus, .create-card select:focus, .create-card textarea:focus { border-color: var(--text-muted); }
+    .create-card textarea { grid-column: span 2; resize: vertical; height: 90px; }
+    
+    /* Стилизация кастомной кнопки загрузки файла */
+    .file-input-wrapper { grid-column: span 2; position: relative; }
+    .file-label { display: block; background: #1c1c21; border: 1px dashed var(--border); text-align: center; padding: 14px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); transition: all 0.2s; }
+    .file-label:hover { border-color: var(--accent); color: var(--text); }
+    #post-file { display: none; }
+
+    .submit-btn { width: 100%; background: var(--primary); color: var(--bg); border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; transition: opacity 0.2s; }
+    .submit-btn:hover { opacity: 0.9; }
+    .submit-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+
+    /* Лента и Карточки постов */
+    .feed { display: flex; flex-direction: column; gap: 25px; }
+    .post { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    .post-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .post-meta { display: flex; flex-direction: column; gap: 2px; }
+    .post-author { font-weight: 700; font-size: 14px; color: var(--text); }
+    .post-tag { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .delete-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px; padding: 4px; }
+    .delete-btn:hover { color: var(--accent); }
+    
+    .image-container { width: 100%; position: relative; background: #1c1c21; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 250px; }
+    .post-image { width: 100%; max-height: 480px; object-fit: cover; block-size: auto; }
+    
+    .post-body { padding: 18px; }
+    .post-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.3px; }
+    .post-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+    
+    /* Лайки */
+    .post-actions { padding: 0 18px 18px; display: flex; gap: 12px; }
+    .like-btn { display: inline-flex; align-items: center; gap: 8px; background: #1c1c21; border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 24px; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 600; }
+    .like-btn:hover { border-color: var(--text-muted); }
+    .like-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+    .like-btn.active .like-icon { transform: scale(1.15); }
+    .like-icon { transition: transform 0.2s; font-size: 14px; }
+
+    /* Блок комментариев */
+    .comments-box { background: #19191d; border-top: 1px solid var(--border); padding: 16px; }
+    .comments-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; max-height: 180px; overflow-y: auto; padding-right: 5px; }
+    .comment-item { font-size: 13px; background: var(--card-bg); padding: 8px 12px; border-radius: 8px; border: 1px solid #1f1f24; }
+    .comment-user { font-weight: 700; color: var(--text); margin-right: 6px; }
+    .comment-text { color: var(--text-muted); }
+    
     .comment-form { display: flex; gap: 8px; }
-    .comment-form input { flex: 1; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
-    .comment-form button { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .comment-form input { flex: 1; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 13px; outline: none; }
+    .comment-form button { background: var(--primary); color: var(--bg); border: none; padding: 0 16px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px; }
+
+    /* Скелетон загрузки */
+    .skeleton { text-align: center; padding: 50px; color: var(--text-muted); font-size: 14px; font-weight: 500; }
     
-    .loading { text-align: center; padding: 40px; color: #888; font-weight: bold; }
+    /* Скроллбар */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
   </style>
 </head>
 <body>
 
   <header>
     <h1>qasr</h1>
-    <span style="font-size: 12px; color: #888; background: #eee; padding: 4px 8px; border-radius: 4px;">MVP</span>
+    <span style="font-size: 11px; color: var(--accent); font-weight: 800; letter-spacing: 1px; border: 1px solid var(--accent); padding: 3px 8px; border-radius: 4px;">PRO v2.0</span>
   </header>
 
   <div class="container">
-    <!-- Форма создания нового поста -->
-    <div class="create-post">
-      <input type="text" id="post-author" placeholder="Ваше имя / никнейм" required>
-      <input type="text" id="post-title" placeholder="Название архитектурного объекта" required>
-      <input type="url" id="post-image" placeholder="Ссылка на фото (https://...)" required>
-      <textarea id="post-desc" placeholder="Описание проекта, материалы, архитектурный стиль..."></textarea>
-      <button id="submit-post-btn">Опубликовать проект</button>
+    <!-- Форма публикации -->
+    <div class="create-card">
+      <div class="form-grid">
+        <input type="text" id="post-author" placeholder="Ваш никнейм" required>
+        <select id="post-category">
+          <option value="Архитектура">Архитектура</option>
+          <option value="Интерьер">Интерьер</option>
+          <option value="Ландшафт">Ландшафт</option>
+          <option value="Урбанизм">Урбанизм</option>
+        </select>
+        <input type="text" id="post-title" placeholder="Название концепта / здания" required>
+        
+        <div class="file-input-wrapper">
+          <label for="post-file" id="file-label" class="file-label">✦ Выберите фото проекта (JPEG / PNG)</label>
+          <input type="file" id="post-file" accept="image/*" required>
+        </div>
+        
+        <textarea id="post-desc" placeholder="Расскажите об архитектурной концепции, геометрии, фасадных решениях..."></textarea>
+      </div>
+      <button id="submit-btn" class="submit-btn">Опубликовать в ленту</button>
     </div>
 
-    <!-- Контейнер ленты -->
-    <div id="loading" class="loading">Синхронизация с базой данных...</div>
+    <!-- Фильтры ленты -->
+    <div class="categories">
+      <button class="cat-btn active" onclick="filterFeed('Все')">Все проекты</button>
+      <button class="cat-btn" onclick="filterFeed('Архитектура')">Архитектура</button>
+      <button class="cat-btn" onclick="filterFeed('Интерьер')">Интерьер</button>
+      <button class="cat-btn" onclick="filterFeed('Ландшафт')">Ландшафт</button>
+      <button class="cat-btn" onclick="filterFeed('Урбанизм')">Урбанизм</button>
+    </div>
+
+    <!-- Лента -->
+    <div id="loading" class="skeleton">Считывание архитектурных матриц...</div>
     <div id="feed" class="feed"></div>
   </div>
 
   <script>
-    // Точный URL вашей базы данных Firebase Realtime Database
-    const DB_URL = "https://qasr-app-e5t6b.fribaseio.com/posts.json";
+    const DB_URL = "firebaseio.com";
 
+    let localPostsCache = {}; 
+    let currentFilter = 'Все';
+    let base64ImageData = "";
+
+    // DOM Ноды
     const feedContainer = document.getElementById('feed');
     const loadingElement = document.getElementById('loading');
-    const submitBtn = document.getElementById('submit-post-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const fileInput = document.getElementById('post-file');
+    const fileLabel = document.getElementById('file-label');
 
-    // Функция для выполнения HTTP-запросов к Firebase REST API
-    async function makeRequest(path, method = 'GET', body = null) {
-      const config = { method };
-      if (body) {
-        config.headers = { 'Content-Type': 'application/json' };
-        config.body = JSON.stringify(body);
+    // Нативный асинхронный клиент для Firebase Realtime Database
+    async function fbCtx(uri, type = 'GET', data = null) {
+      const init = { method: type };
+      if (data) {
+        init.headers = { 'Content-Type': 'application/json' };
+        init.body = JSON.stringify(data);
       }
-      const response = await fetch(`${DB_URL}${path}`, config);
-      if (!response.ok) throw new Error(`Ошибка запроса: ${response.status}`);
-      return response.json();
+      const res = await fetch(`${DB_URL}${uri}`, init);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
     }
 
-    // Добавление демо-данных, если база пустая (первый запуск)
-    async function ensureDataExists(data) {
-      if (!data) {
-        const defaultData = {
-          "first_post_id": {
-            author: "QasrTeam",
-            title: "Центр Гейдара Алиева",
-            image: "unsplash.com",
-            desc: "Пример деконструктивизма. Текучие формы и непрерывные линии фасада.",
-            likes: { count: 1 },
-            comments: {
-              "c_init": { author: "Admin", text: "Добро пожаловать в архитектурную соцсеть qasr!" }
-            }
-          }
-        };
-        await makeRequest('/posts.json', 'PUT', defaultData);
-        return defaultData;
+    // Слушатель выбора файла и перевод его в Base64 стрим
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      fileLabel.textContent = `Загрузка: ${file.name.substring(0, 20)}...`;
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        base64ImageData = event.target.result;
+        fileLabel.textContent = "✓ Фото успешно прикреплено";
+        fileLabel.style.borderColor = "var(--primary)";
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Отрисовка постов с учетом фильтрации
+    function displayPosts() {
+      feedContainer.innerHTML = '';
+      const keys = Object.keys(localPostsCache).reverse();
+      
+      let hasVisiblePosts = false;
+
+      keys.forEach(id => {
+        const post = localPostsCache[id];
+        if (!post) return;
+        
+        // Фильтрация по категориям
+        if (currentFilter !== 'Все' && post.category !== currentFilter) return;
+        hasVisiblePosts = true;
+
+        const totalLikes = post.likes ? post.likes.count || 0 : 0;
+        const activeClass = localStorage.getItem(`liked_${id}`) === 'true' ? 'active' : '';
+
+        let commentsMarkup = '';
+        if (post.comments) {
+          Object.keys(post.comments).forEach(cid => {
+            const comment = post.comments[cid];
+            commentsMarkup += `
+              <div class="comment-item">
+                <span class="comment-user">@${secure(comment.author)}</span>
+                <span class="comment-text">${secure(comment.text)}</span>
+              </div>`;
+          });
+        }
+
+        const card = document.createElement('article');
+        card.className = 'post';
+        card.innerHTML = `
+          <div class="post-header">
+            <div class="post-meta">
+              <span class="post-author">@${secure(post.author)}</span>
+              <span class="post-tag">${secure(post.category || 'Архитектура')}</span>
+            </div>
+            <button class="delete-btn" onclick="dropPost('${id}')" title="Удалить публикацию">✕</button>
+          </div>
+          <div class="image-container">
+            <img class="post-image" src="${post.image}" alt="Проект" onerror="this.src='unsplash.com'">
+          </div>
+          <div class="post-body">
+            <h2 class="post-title">${secure(post.title)}</h2>
+            <p class="post-desc">${secure(post.desc || '')}</p>
+          </div>
+          <div class="post-actions">
+            <button class="like-btn ${activeClass}" onclick="handleLike('${id}', this)">
+              <span class="like-icon">❤</span>
+              <span class="like-count">${totalLikes}</span>
+            </button>
+          </div>
+          <div class="comments-box">
+            <div class="comments-list" id="box-${id}">${commentsMarkup}</div>
+            <div class="comment-form">
+              <input type="text" id="u-${id}" placeholder="Ваш ник" required>
+              <input type="text" id="t-${id}" placeholder="Добавить мнение..." required>
+              <button onclick="handleComment('${id}')">Отправить</button>
+            </div>
+          </div>
+        `;
+        feedContainer.appendChild(card);
+      });
+
+      if (!hasVisiblePosts) {
+        feedContainer.innerHTML = `<div class="skeleton">В категории "${currentFilter}" пока нет проектов.</div>`;
       }
-      return data;
     }
 
-    // Основная функция загрузки и отображения ленты
-    async function renderFeed() {
+    // Первичный запрос данных
+    async function syncFeed() {
       try {
         loadingElement.style.display = 'block';
-        let rawPosts = await makeRequest('/posts.json');
-        rawPosts = await ensureDataExists(rawPosts);
-        
-        feedContainer.innerHTML = '';
+        const serverData = await fbCtx('/posts.json');
+        localPostsCache = serverData || {};
         loadingElement.style.display = 'none';
-
-        if (!rawPosts) return;
-
-        // Перебираем посты в обратном порядке (новые сверху)
-        Object.keys(rawPosts).reverse().forEach(id => {
-          const post = rawPosts[id];
-          const totalLikes = post.likes ? post.likes.count || 0 : 0;
-          const userLiked = localStorage.getItem(`liked_${id}`) === 'true';
-
-          let commentsBlock = '';
-          if (post.comments) {
-            Object.keys(post.comments).forEach(cid => {
-              const comment = post.comments[cid];
-              commentsBlock += `
-                <div class="comment-item">
-                  <span class="comment-author">${clean(comment.author)}:</span>
-                  <span>${clean(comment.text)}</span>
-                </div>`;
-            });
-          }
-
-          const card = document.createElement('div');
-          card.className = 'post';
-          card.innerHTML = `
-            <div class="post-header">
-              <span class="post-author">@${clean(post.author)}</span>
-            </div>
-            <img class="post-image" src="${post.image}" alt="Проект" onerror="this.src='unsplash.com'">
-            <div class="post-content">
-              <h3 class="post-title">${clean(post.title)}</h3>
-              <p class="post-desc">${clean(post.desc || '')}</p>
-            </div>
-            <div class="post-actions">
-              <button class="like-btn ${userLiked ? 'active' : ''}" data-post-id="${id}">
-                <span class="like-icon">❤</span>
-                <span class="like-count">${totalLikes}</span>
-              </button>
-            </div>
-            <div class="comments-section">
-              <div class="comments-list" id="list-${id}">${commentsBlock}</div>
-              <div class="comment-form">
-                <input type="text" id="author-${id}" placeholder="Имя" required>
-                <input type="text" id="text-${id}" placeholder="Ваш комментарий..." required>
-                <button onclick="sendComment('${id}')">ОК</button>
-              </div>
-            </div>
-          `;
-
-          const btn = card.querySelector('.like-btn');
-          btn.onclick = () => changeLikeState(id, btn);
-
-          feedContainer.appendChild(card);
-        });
+        displayPosts();
       } catch (err) {
-        loadingElement.textContent = "Ошибка. Проверьте соединение с Firebase или правила Read/Write.";
+        loadingElement.textContent = "Критическая ошибка синхронизации с базой данных.";
         console.error(err);
       }
     }
 
-    // Логика переключения лайков
-    async function changeLikeState(id, button) {
-      const countLabel = button.querySelector('.like-count');
-      let count = parseInt(countLabel.textContent) || 0;
-      const alreadyLiked = button.classList.contains('active');
+    // Переключение вкладок фильтра
+    function filterFeed(categoryName) {
+      currentFilter = categoryName;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(categoryName) || (categoryName === 'Все' && btn.textContent === 'Все проекты'));
+      });
+      displayPosts();
+    }
 
-      if (alreadyLiked) {
-        count = Math.max(0, count - 1);
+    // Реактивный цикл лайка
+    async function handleLike(id, button) {
+      const countNode = button.querySelector('.like-count');
+      let currentVal = parseInt(countNode.textContent) || 0;
+      const isPressed = button.classList.contains('active');
+
+      if (isPressed) {
+        currentVal = Math.max(0, currentVal - 1);
         button.classList.remove('active');
         localStorage.removeItem(`liked_${id}`);
       } else {
-        count += 1;
+        currentVal += 1;
         button.classList.add('active');
         localStorage.setItem(`liked_${id}`, 'true');
       }
-      countLabel.textContent = count;
+      countNode.textContent = currentVal;
+      
+      if (localPostsCache[id]) {
+        if (!localPostsCache[id].likes) localPostsCache[id].likes = {};
+        localPostsCache[id].likes.count = currentVal;
+      }
 
       try {
-        await makeRequest(`/posts/${id}/likes.json`, 'PUT', { count });
-      } catch (error) {
-        console.error("Сбой отправки лайка:", error);
+        await fbCtx(`/posts/${id}/likes.json`, 'PUT', { count: currentVal });
+      } catch (e) {
+        console.error(e);
       }
     }
 
-    // Логика добавления комментариев
-    async function sendComment(id) {
-      const authorField = document.getElementById(`author-${id}`);
-      const textField = document.getElementById(`text-${id}`);
-      const author = authorField.value.trim();
-      const text = textField.value.trim();
+    // Добавление комментариев
+    async function handleComment(id) {
+      const uNode = document.getElementById(`u-${id}`);
+      const tNode = document.getElementById(`t-${id}`);
+      const author = uNode.value.trim();
+      const text = tNode.value.trim();
 
-      if (!author || !text) return alert("Заполните оба поля комментария!");
+      if (!author || !text) return alert("Заполните поля автора и текста!");
+
+      const payload = { author, text };
 
       try {
-        await makeRequest(`/posts/${id}/comments.json`, 'POST', { author, text });
-        textField.value = '';
+        const res = await fbCtx(`/posts/${id}/comments.json`, 'POST', payload);
         
-        const list = document.getElementById(`list-${id}`);
-        list.innerHTML += `
+        if (!localPostsCache[id].comments) localPostsCache[id].comments = {};
+        localPostsCache[id].comments[res.name] = payload;
+
+        tNode.value = '';
+        const box = document.getElementById(`box-${id}`);
+        box.innerHTML += `
           <div class="comment-item">
-            <span class="comment-author">${clean(author)}:</span>
-            <span>${clean(text)}</span>
+            <span class="comment-user">@${secure(author)}</span>
+            <span class="comment-text">${secure(text)}</span>
           </div>`;
-      } catch (error) {
-        alert("Не удалось отправить комментарий.");
+        box.scrollTop = box.scrollHeight;
+      } catch (e) {
+        alert("Ошибка при отправке комментария.");
       }
     }
 
-    // Логика отправки новой публикации
+    // Удаление поста
+    async function dropPost(id) {
+      if (!confirm("Вы уверены, что хотите безвозвратно удалить этот архитектурный проект?")) return;
+      try {
+        await fbCtx(`/posts/${id}.json`, 'DELETE');
+        delete localPostsCache[id];
+        displayPosts();
+      } catch (e) {
+        alert("Не удалось удалить пост.");
+      }
+    }
+
+    // Публикация нового концепта
     submitBtn.addEventListener('click', async () => {
       const author = document.getElementById('post-author').value.trim();
+      const category = document.getElementById('post-category').value;
       const title = document.getElementById('post-title').value.trim();
-      const image = document.getElementById('post-image').value.trim();
       const desc = document.getElementById('post-desc').value.trim();
 
-      if (!author || !title || !image) return alert("Заполните поля: Имя, Название и Ссылка на картинку!");
+      if (!author || !title) return alert("Пожалуйста, заполните поля: Автор и Название проекта!");
+      if (!base64ImageData) return alert("Пожалуйста, выберите и загрузите изображение вашего проекта!");
 
-      const payload = { author, title, image, desc, likes: { count: 0 } };
+      const newPost = {
+        author,
+        category,
+        title,
+        desc,
+        image: base64ImageData,
+        likes: { count: 0 }
+      };
 
       try {
         submitBtn.disabled = true;
-        submitBtn.textContent = "Отправка в облако...";
+        submitBtn.textContent = "Синхронизация структуры...";
         
-        await makeRequest('/posts.json', 'POST', payload);
+        await fbCtx('/posts.json', 'POST', newPost);
         
+        // Сброс формы публикации
         document.getElementById('post-title').value = '';
-        document.getElementById('post-image').value = '';
         document.getElementById('post-desc').value = '';
+        base64ImageData = "";
+        fileInput.value = "";
+        fileLabel.textContent = "✦ Выберите фото проекта (JPEG / PNG)";
+        fileLabel.style.borderColor = "var(--border)";
         
-        await renderFeed();
+        await syncFeed();
       } catch (err) {
-        alert("Ошибка публикации!");
+        alert("Ошибка сети при отправке публикации.");
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Опубликовать проект";
+        submitBtn.textContent = "Опубликовать в ленту";
       }
     });
 
-    // Защита от XSS инъекций
-    function clean(str) {
-      if (!str) return '';
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    // Парсинг строк для предотвращения уязвимостей
+    function secure(input) {
+      if (!input) return '';
+      return input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-    document.addEventListener('DOMContentLoaded', renderFeed);
+    document.addEventListener('DOMContentLoaded', syncFeed);
   </script>
 </body>
 </html>
