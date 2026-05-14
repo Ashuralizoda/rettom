@@ -97,93 +97,89 @@
                 reader.readAsDataURL(file);
             }
         };
+// Функция автоматического «живого» обновления ленты
+function initRealtimeFeed() {
+  const eventSource = new EventSource(`${DB_URL}`);
 
-        async function loadFeed() {
-            try {
-                const response = await fetch(DB_URL);
-                if (!response.ok) {
-                    throw new Error("Ошибка сети");
-                }
-                const data = await response.json();
-                mainFeed.innerHTML = '';
-                
-                if (data === null || Object.keys(data).length === 0) {
-                    mainFeed.innerHTML = '<p style="text-align:center; color:#86868b; margin-top:20px;">Лента пуста. Будьте первым!</p>';
-                    return;
-                }
+  eventSource.addEventListener('put', (e) => {
+    const res = JSON.parse(e.data);
+    const path = res.path;
+    const data = res.data;
 
-                const postsArray = Object.keys(data).map(key => data[key]).reverse();
+    if (path === "/") {
+      mainfeed.innerHTML = "";
+      if (data) {
+        Object.keys(data).reverse().forEach(id => {
+          mainfeed.insertAdjacentHTML('beforeend', createPostHTML(id, data[id]));
+        });
+      }
+    } else {
+      const id = path.replace('/', '');
+      const existPost = document.getElementById(`post-${id}`);
 
-                postsArray.forEach(post => {
-                    const postElement = document.createElement('div');
-                    postElement.className = 'post';
-                    let imageTag = post.image ? `<img src="${post.image}" class="post-image">` : "";
-
-                    postElement.innerHTML = `
-                        <div class="post-header">
-                            <div class="avatar" style="background-color: ${post.image ? '#111' : '#e5e5e5'}"></div>
-                            <div class="author-info">
-                                <span class="author-name">${post.name || "Ашурализод Шерзод"}</span>
-                                <span class="author-role">${post.role || "Архитектор"}</span>
-                            </div>
-                        </div>
-                        <div class="post-text">${post.text || ""}</div>
-                        ${imageTag}
-                        <div class="post-actions"><button class="btn-like">❤️ 0</button></div>
-                    `;
-                    mainFeed.appendChild(postElement);
-                });
-            } catch (error) {
-                mainFeed.innerHTML = '<p style="text-align:center; color:#86868b; margin-top:20px;">Лента пуста. Будьте первым!</p>';
-                console.error(error);
-            }
+      if (data === null) {
+        if (existPost) existPost.remove();
+      } else if (existPost) {
+        if (data.likes !== undefined) {
+          existPost.querySelector('.like-count').textContent = data.likes;
         }
+      } else {
+        mainfeed.insertAdjacentHTML('afterbegin', createPostHTML(id, data));
+      }
+    }
+  });
 
-        btnOpenModal.onclick = () => { modal.style.display = 'flex'; };
-        btnCancel.onclick = () => { 
-            modal.style.display = 'none'; 
-            postText.value = ''; 
-            fileInput.value = '';
-            imgPreview.style.display = 'none';
-            uploadedImageBase64 = "";
-        };
+  eventSource.onerror = () => {
+    eventSource.close();
+    setTimeout(initRealtimeFeed, 5000);
+  };
+}
 
-        btnPublish.onclick = async () => {
-            if(postText.value.trim() === "" && !uploadedImageBase64) return alert("Напишите текст или добавьте фото!");
-            
-            const newPostData = {
-                name: "Ашурализод Шерзод",
-                role: "Архитектор • Только что",
-                text: postText.value,
-                image: uploadedImageBase64
-            };
+// Шаблон отрисовки карточки поста
+function createPostHTML(id, data) {
+  return `
+    <div class="post" id="post-${id}">
+      <div class="post-header">
+        <div class="avatar"></div>
+        <div class="author-info">
+          <div class="author-name">Ашурализода Шерзод</div>
+          <div class="author-role">Архитектор • Только что</div>
+        </div>
+      </div>
+      <div class="post-text">${data.text || ''}</div>
+      <div class="post-actions">
+        <button class="like-btn" onclick="toggleLike('${id}')">
+          <span class="heart-icon">❤</span>
+          <span class="like-count">${data.likes || 0}</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
 
-            try {
-                btnPublish.innerText = "Публикация...";
-                btnPublish.disabled = true;
+// Отправка лайка в Firebase Realtime Database
+async function toggleLike(id) {
+  const postElement = document.getElementById(`post-${id}`);
+  const countElement = postElement.querySelector('.like-count');
+  let currentLikes = parseInt(countElement.textContent) || 0;
+  
+  currentLikes++;
 
-                await fetch(DB_URL, {
-                    method: "POST",
-                    body: JSON.stringify(newPostData)
-                });
+  // Отрезаем ".json" от базового DB_URL для создания точного пути к посту
+  const cleanUrl = DB_URL.replace('.json', '');
+  try {
+    await fetch(`${cleanUrl}/${id}.json`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ likes: currentLikes })
+    });
+  } catch (err) {
+    console.error("Ошибка обновления лайка:", err);
+  }
+}
 
-                modal.style.display = 'none';
-                postText.value = '';
-                fileInput.value = '';
-                imgPreview.style.display = 'none';
-                uploadedImageBase64 = "";
-                
-                await loadFeed();
-            } catch (error) {
-                alert("Не удалось отправить пост");
-                console.error(error);
-            } finally {
-                btnPublish.innerText = "Опубликовать";
-                btnPublish.disabled = false;
-            }
-        };
-
-        loadFeed();
+// Старт живой ленты вместо старого loadFeed()
+initRealtimeFeed();
     </script>
 </body>
 </html>
