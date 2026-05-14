@@ -189,6 +189,7 @@ function createPostHTML(id, data) {
 // 5. АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ ЛЕНТЫ (SSE)
 // ==========================================
 function initRealtimeFeed() {
+  const mainfeed = document.getElementById('mainFeed') || document.getElementById('mainfeed');
   if (!mainfeed) return;
   
   const eventSource = new EventSource(DB_URL);
