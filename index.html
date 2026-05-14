@@ -450,29 +450,27 @@
     }
 
     // ВСТАВЬТЕ ЭТОТ ОБНОВЛЕННЫЙ БЛОК ДЛЯ ЖИВОЙ ЛЕНТЫ:
+// ТОЧНЫЙ КОД ДЛЯ ЗАМЕНЫ В САМОМ НИЗУ ФАЙЛА:
 document.addEventListener('DOMContentLoaded', () => {
   initUserProfile(); // Инициализируем никнейм пользователя
   
-  // Переключаем Firebase REST API в режим реального времени (стриминг данных)
-  const eventSource = new EventSource(`https://${DB_URL}/posts.json`);
+  // Подключаем стрим данных без дублирования протоколов
+  const eventSource = new EventSource(`${DB_URL}/posts.json`);
   
   // Слушаем любые изменения в базе данных qasr
   eventSource.addEventListener('put', (event) => {
     try {
       const parseData = JSON.parse(event.data);
       
-      // Если это первая загрузка или полное обновление ветки
       if (parseData.path === "/") {
         localPostsCache = parseData.data || {};
       } else {
-        // Если обновился конкретный пост (например, прилетел новый лайк или коммент)
-        const pathParts = parseData.path.split('/'); // разбивает путь вида /post_id/likes
+        const pathParts = parseData.path.split('/');
         const postId = pathParts[1];
         
         if (postId) {
           if (!localPostsCache[postId]) localPostsCache[postId] = {};
           
-          // Обновляем только изменившуюся часть в локальном кэше
           if (pathParts.length === 2) {
             localPostsCache[postId] = parseData.data;
           } else if (pathParts[2] === 'likes') {
@@ -483,7 +481,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
       
-      // Скрываем загрузчик и мгновенно перерисовываем интерфейс
       loadingElement.style.display = 'none';
       displayPosts();
       
@@ -492,11 +489,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Обработка ошибок соединения с Firebase
   eventSource.onerror = () => {
     console.log("Потеря связи с Firebase. Переподключение...");
-    loadingElement.textContent = "Проблемы с сетью. Синхронизация...";
-    loadingElement.style.display = 'block';
   };
 });
 
