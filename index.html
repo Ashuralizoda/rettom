@@ -42,7 +42,7 @@
     <div class="app-container">
         <header>
             <h1>Qasr</h1>
-            <button style="background:none; border:none; font-size:20px; cursor:pointer;">🔔</button>
+            <button style="background:none; border:none; font-size:20px; cursor:pointer;">♧</button>
         </header>
 
         <div class="feed" id="mainFeed">
@@ -50,7 +50,7 @@
         </div>
 
         <nav>
-            <button class="nav-item active">🏠</button>
+            <button class="nav-item active">○</button>
             <button class="nav-item" id="btnOpenModal">+</button>
             <button class="nav-item">👤</button>
         </nav>
@@ -80,12 +80,12 @@
         const imgPreview = document.getElementById('imgPreview');
         const mainFeed = document.getElementById('mainFeed');
 
-        // Полная абсолютная ссылка на вашу базу данных Firebase
-        const DB_URL = "https://firebaseio.com";
+        // ВАШ ТОЧНЫЙ АДРЕС БАЗЫ ДАННЫХ ИЗ ФОТО
+        const DB_URL = "https://qasr-app-e5a6b-default-rtdb.firebaseio.com";
         let uploadedImageBase64 = "";
 
         fileInput.onchange = function() {
-            const file = this.files[0];
+            const file = this.files;
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -101,7 +101,7 @@
             try {
                 const response = await fetch(DB_URL);
                 if (!response.ok) {
-                    throw new Error("Ошибка соединения с сервером");
+                    throw new Error("Ошибка сети");
                 }
                 const data = await response.json();
                 mainFeed.innerHTML = '';
@@ -122,8 +122,8 @@
                         <div class="post-header">
                             <div class="avatar" style="background-color: ${post.image ? '#111' : '#e5e5e5'}"></div>
                             <div class="author-info">
-                                <span class="author-name">${post.name || "Шерзод Архитектор"}</span>
-                                <span class="author-role">${post.role || "Только что"}</span>
+                                <span class="author-name">${post.name || "Ашурализод Шерзод"}</span>
+                                <span class="author-role">${post.role || "Архитектор"}</span>
                             </div>
                         </div>
                         <div class="post-text">${post.text || ""}</div>
@@ -177,7 +177,7 @@
                 
                 await loadFeed();
             } catch (error) {
-                alert("Не удалось отправить пост в базу данных");
+                alert("Не удалось отправить пост");
                 console.error(error);
             } finally {
                 btnPublish.innerText = "Опубликовать";
