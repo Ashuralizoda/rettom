@@ -108,68 +108,8 @@
         };
 
     // ==========================================
-// 1. НАСТРОЙКИ И ПЕРЕМЕННЫЕ
 // ==========================================
-const DB_URL = "firebaseio.com";
-
-// Элементы интерфейса
-const mainfeed = document.getElementById('mainfeed');
-const btnPublish = document.getElementById('btnPublish');
-const postText = document.getElementById('postText');
-const fileInput = document.getElementById('fileInput');
-const imgPreview = document.getElementById('imgPreview');
-
-// Переменные для модального окна добавления поста
-const modal = document.getElementById('postmodal');
-const btnOpenModal = document.getElementById('btnOpenModal'); // убедитесь, что у кнопки открытия этот ID
-const btnCancel = document.getElementById('btnCancel');
-
-let uploadedImageBase64 = "";
-
-// ==========================================
-// 2. РАБОТА С МОДАЛЬНЫМ ОКНОМ И ФОТО
-// ==========================================
-
-// Открытие окна (если кнопка существует)
-if (btnOpenModal) {
-  btnOpenModal.onclick = () => { modal.style.display = 'block'; };
-}
-// Закрытие окна
-if (btnCancel) {
-  btnCancel.onclick = () => { closeModal(); };
-}
-
-function closeModal() {
-  modal.style.display = 'none';
-  if (postText) postText.value = "";
-  if (fileInput) fileInput.value = "";
-  if (imgPreview) {
-    imgPreview.src = "";
-    imgPreview.style.display = 'none';
-  }
-  uploadedImageBase64 = "";
-}
-
-// Чтение выбранного файла и перевод в строку Base64
-if (fileInput) {
-  fileInput.onchange = function() {
-    const file = this.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        uploadedImageBase64 = e.target.result;
-        if (imgPreview) {
-          imgPreview.src = e.target.result;
-          imgPreview.style.display = 'block';
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-}
-
-// ==========================================
-// 3. ОТПРАВКА НОВОГО ПОСТА В FIREBASE
+// 3. ОТПРАВКА ПОСТА С ФОТО В FIREBASE
 // ==========================================
 if (btnPublish) {
   btnPublish.onclick = async () => {
@@ -193,10 +133,19 @@ if (btnPublish) {
         body: JSON.stringify(newPostData)
       });
 
-      if (!response.ok) throw new Error("Ошибка сервера");
-      closeModal();
+      if (!response.ok) throw new Error();
+      
+      // Закрываем модальное окно после успешной отправки
+      if (modal) modal.style.display = 'none';
+      if (postText) postText.value = "";
+      if (fileInput) fileInput.value = "";
+      if (imgPreview) {
+        imgPreview.src = "";
+        imgPreview.style.display = 'none';
+      }
+      uploadedImageBase64 = "";
     } catch (err) {
-      alert("Не удалось отправить пост. Проверьте интернет.");
+      alert("Ошибка при отправке поста!");
     } finally {
       btnPublish.innerText = "Опубликовать";
       btnPublish.disabled = false;
@@ -205,15 +154,13 @@ if (btnPublish) {
 }
 
 // ==========================================
-// 4. ШАБЛОН КАРТОЧКИ ПОСТА (HTML)
+// 4. ШАБЛОН КАРТОЧКИ ПОСТА
 // ==========================================
 function createPostHTML(id, data) {
-  // Проверяем, есть ли картинка в посте
   const imageTag = data.image 
     ? `<img src="${data.image}" class="post-image" style="width:100%; max-height:400px; object-fit:cover; margin-top:10px; border-radius:8px;">` 
     : '';
 
-  // Проверяем локальное хранилище, лайкал ли этот браузер пост ранее
   const isLiked = localStorage.getItem(`liked_${id}`) === "true";
   const likedClass = isLiked ? "liked" : "";
 
@@ -252,29 +199,25 @@ function initRealtimeFeed() {
     const data = res.data;
 
     if (path === "/") {
-      // Полная загрузка базы при открытии страницы (новые посты сверху)
       mainfeed.innerHTML = "";
       if (data) {
         Object.keys(data).reverse().forEach(id => {
           mainfeed.insertAdjacentHTML('beforeend', createPostHTML(id, data[id]));
         });
       } else {
-        mainfeed.innerHTML = `<p style="text-align:center; color:#888; margin-top:20px;">Лента пуста. Добавьте первый проект!</p>`;
+        mainfeed.innerHTML = `<p style="text-align:center; color:#888;">Лента пуста.</p>`;
       }
     } else {
-      // Точечное мгновенное изменение (прилетел новый пост или изменились лайки)
       const id = path.replace('/', '');
       const existPost = document.getElementById(`post-${id}`);
 
       if (data === null) {
         if (existPost) existPost.remove();
       } else if (existPost) {
-        // Если изменились только лайки — обновляем цифру на лету
         if (data.likes !== undefined) {
           existPost.querySelector('.like-count').textContent = data.likes;
         }
       } else {
-        // Абсолютно новый пост мгновенно отрисовывается вверху ленты у всех
         mainfeed.insertAdjacentHTML('afterbegin', createPostHTML(id, data));
       }
     }
@@ -282,12 +225,12 @@ function initRealtimeFeed() {
 
   eventSource.onerror = () => {
     eventSource.close();
-    setTimeout(initRealtimeFeed, 5000); // Переподключение при сбоях сети
+    setTimeout(initRealtimeFeed, 5000);
   };
 }
 
 // ==========================================
-// 6. ИНТЕРАКТИВНЫЕ ЛАЙКИ (ОТПРАВКА И ОТКАТ)
+// 6. ИНТЕРАКТИВНЫЕ ЛАЙКИ
 // ==========================================
 async function toggleLike(id) {
   const postElement = document.getElementById(`post-${id}`);
@@ -299,15 +242,12 @@ async function toggleLike(id) {
   let currentLikes = parseInt(countElement.textContent) || 0;
   const isLiked = localStorage.getItem(`liked_${id}`) === "true";
   
-  // Рассчитываем новые значения локально
   const nextLikedState = !isLiked;
   const nextLikesCount = nextLikedState ? currentLikes + 1 : Math.max(0, currentLikes - 1);
 
-  // Оптимистичное обновление интерфейса (мгновенно меняем цвет и цифру)
   btn.classList.toggle('liked', nextLikedState);
   countElement.textContent = nextLikesCount;
 
-  // Формируем чистый URL для изменения поля конкретного поста
   const patchUrl = DB_URL.replace('.json', `/${id}.json`);
 
   try {
@@ -318,21 +258,15 @@ async function toggleLike(id) {
     });
 
     if (!response.ok) throw new Error();
-
-    // Запоминаем состояние лайка в памяти браузера
     localStorage.setItem(`liked_${id}`, nextLikedState);
   } catch (err) {
-    console.error("Не удалось сохранить лайк:", err);
-    // Возвращаем как было, если пропал интернет
     btn.classList.toggle('liked', isLiked);
     countElement.textContent = currentLikes;
-    alert("Проблемы со связью. Лайк не засчитан.");
+    alert("Ошибка соединения. Лайк не сохранен.");
   }
 }
 
-// Запуск живого потока данных
-initRealtimeFeed();    
-// Старт живой ленты вместо старого loadFeed()
+// Старт живой ленты
 initRealtimeFeed();
     </script>
 </body>
