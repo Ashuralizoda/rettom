@@ -160,20 +160,44 @@
     }
 
     // Слушатель выбора файла и перевод его в Base64 стрим
-    fileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+// Полностью замените ваш старый fileInput.addEventListener новым кодом:
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  fileLabel.textContent = `Оптимизация: ${file.name.substring(0, 15)}...`;
+  
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      // Создаем виртуальный холст для сжатия фото
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
       
-      fileLabel.textContent = `Загрузка: ${file.name.substring(0, 20)}...`;
+      // Задаем максимальную ширину для архитектурного поста
+      const MAX_WIDTH = 800;
+      let width = img.width;
+      let height = img.height;
       
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        base64ImageData = event.target.result;
-        fileLabel.textContent = "✓ Фото успешно прикреплено";
-        fileLabel.style.borderColor = "var(--primary)";
-      };
-      reader.readAsDataURL(file);
-    });
+      if (width > MAX_WIDTH) {
+        height = Math.round((height * MAX_WIDTH) / width);
+        width = MAX_WIDTH;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Конвертируем в JPEG с качеством 75% (весить будет около 50-100 КБ вместо 5 МБ)
+      base64ImageData = canvas.toDataURL('image/jpeg', 0.75);
+      fileLabel.textContent = "✓ Фото оптимизировано для облака";
+      fileLabel.style.borderColor = "var(--primary)";
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
 
     // Отрисовка постов с учетом фильтрации
     function displayPosts() {
