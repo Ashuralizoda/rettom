@@ -953,8 +953,9 @@ function handleAuthSubmit() {
     const FIREBASE_API_KEY = "AIzaSyDl3SAgseXWdc4AEwFncZ0QDPWODNdcykY"; 
     
     const url = isSignUpMode 
-        ? `https://googleapis.com{FIREBASE_API_KEY}`
-        : `https://googleapis.com{FIREBASE_API_KEY}`;
+    ? "https://identitoolkit.googleapis.com/v1/accounts:signUp?key=" + FIREBASE_API_KEY 
+    : "https://identitoolkit.googleapis.com/v1/accounts:signinWithPassword?key" + FIREBASE_API_KEY;
+
 
     const submitBtn = document.getElementById('auth-submit-btn');
     submitBtn.textContent = 'Загрузка...';
