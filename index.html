@@ -954,8 +954,15 @@ function handleAuthSubmit() {
     
     let isSignUpMode = true 
     const url = isSignUpMode 
-    ? "https://identitoolkit.googleapis.com/v1/accounts:signUp?key=" + FIREBASE_API_KEY
-    : "https://identitoolkit.googleapis.com/v1/accounts:signinWithPassword?key" + FIREBASE_API_KEY;
+   
+const ch1 = "https://identitytoolkit.";
+const ch2 = ":https//googleapis.com/v1/accounts";
+
+if (isSignUpMode) {
+    url = ch1 + ch2 + ":signUp?key=" + FIREBASE_API_KEY;
+} else {
+    url = ch1 + ch2 + ":signInWithPassword?key=" + FIREBASE_API_KEY;
+}
 
 
     const submitBtn = document.getElementById('auth-submit-btn');
