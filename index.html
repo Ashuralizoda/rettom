@@ -953,15 +953,15 @@ function handleAuthSubmit() {
     const FIREBASE_API_KEY = "AIzaSyDl3SAgseXWdc4AEwFncZ0QDPWODNdcykY" ; 
     
     let isSignUpMode = true 
-    const url = isSignUpMode 
-   
+   let url = isSignUpMode;
+
 const ch1 = "https://identitytoolkit.";
-const ch2 = ":https//googleapis.com/v1/accounts";
+const ch2 = "googleapis.com/v1/accounts";
 
 if (isSignUpMode) {
-    url = ch1 + ch2 + ":signUp?key=" + FIREBASE_API_KEY;
+    url = ch1 + ch2 + "/v1/accounts:signUp?key=" + FIREBASE_API_KEY;
 } else {
-    url = ch1 + ch2 + ":signInWithPassword?key=" + FIREBASE_API_KEY;
+    url = ch1 + ch2 + "/v1/accounts:signInWithPassword?key=" + FIREBASE_API_KEY;
 }
 
 
