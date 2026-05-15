@@ -945,18 +945,55 @@ function handleAuthSubmit() {
     const password = document.getElementById('auth-password').value;
 
     if (!email || !password) {
-        alert('Заполните все поля!');
+        alert('Пожалуйста, заполните все поля!');
         return;
     }
 
-    if (isSignUpMode) {
-        // Здесь логика Firebase Регистрации
-        console.log('Регистрация в Firebase:', email);
-    } else {
-        // Здесь логика Firebase Входа
-        console.log('Вход в Firebase:', email);
-    }
+    // ВСТАВЬТЕ СВОЙ API KEY ИЗ FIREBASE КОНФИГА В СТРОКУ НИЖЕ:
+    const FIREBASE_API_KEY = "AIzaSyDl3SAgseXWdc4AEwFncZ0QDPWODNdcykY"; 
+    
+    const url = isSignUpMode 
+        ? `https://googleapis.com{FIREBASE_API_KEY}`
+        : `https://googleapis.com{FIREBASE_API_KEY}`;
+
+    const submitBtn = document.getElementById('auth-submit-btn');
+    submitBtn.textContent = 'Загрузка...';
+    submitBtn.disabled = true;
+
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, returnSecureToken: true })
+    })
+    .then(res => {
+        if (!res.ok) throw res;
+        return res.json();
+    })
+    .then(data => {
+        localStorage.setItem('rettom_token', data.idToken);
+        localStorage.setItem('rettom_uid', data.localId);
+        localStorage.setItem('rettom_email', data.email);
+
+        alert(isSignUpMode ? 'Регистрация успешна!' : 'Вход выполнен успешно!');
+        
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-screen').style.display = 'block';
+        
+        if (typeof initApp === 'function') initApp();
+    })
+    .catch(async err => {
+        submitBtn.textContent = isSignUpMode ? 'Зарегистрироваться' : 'Войти';
+        submitBtn.disabled = false;
+        
+        try {
+            const errData = await err.json();
+            alert('Ошибка Firebase: ' + errData.error.message);
+        } catch(e) {
+            alert('Ошибка сети или неверный API ключ!');
+        }
+    });
 }
+
 // --- КОНЕЦ ЛОГИКИ АВТОРИЗАЦИИ ---
 
 </script>
