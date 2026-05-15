@@ -1,9 +1,9 @@
 {
-  "short_name": "Qasr",
-  "name": "Qasr — Пространство дизайна",
+  "short_name": "Rettom",
+  "name": "Rettom — Твой лайфстайл и блоги",
   "icons": [
     {
-      "src": "flaticon.com",
+      "src": "assets/icon-512.png",
       "type": "image/png",
       "sizes": "512x512"
     }

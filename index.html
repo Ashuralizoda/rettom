@@ -920,3 +920,45 @@
                 
             
         }
+        // --- ФУНКЦИИ АВТОРИЗАЦИИ RETTOM ---
+let isSignUpMode = false;
+
+function toggleAuthMode() {
+    isSignUpMode = !isSignUpMode;
+    const titleEl = document.getElementById('auth-title');
+    const submitBtn = document.getElementById('auth-submit-btn');
+    const toggleLink = document.getElementById('auth-toggle-mode');
+
+    if (isSignUpMode) {
+        if (titleEl) titleEl.textContent = 'Регистрация профиля';
+        if (submitBtn) submitBtn.textContent = 'Зарегистрироваться';
+        if (toggleLink) toggleLink.textContent = 'Уже есть аккаунт? Войти';
+    } else {
+        if (titleEl) titleEl.textContent = 'Войти в аккаунт';
+        if (submitBtn) submitBtn.textContent = 'Войти';
+        if (toggleLink) toggleLink.textContent = 'Нет аккаунта? Зарегистрироваться';
+    }
+}
+
+function handleAuthSubmit() {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+
+    if (!email || !password) {
+        alert('Заполните все поля!');
+        return;
+    }
+
+    if (isSignUpMode) {
+        // Здесь логика Firebase Регистрации
+        console.log('Регистрация в Firebase:', email);
+    } else {
+        // Здесь логика Firebase Входа
+        console.log('Вход в Firebase:', email);
+    }
+}
+// --- КОНЕЦ ЛОГИКИ АВТОРИЗАЦИИ ---
+
+</script>
+</body>
+</html>
