@@ -952,8 +952,9 @@ function handleAuthSubmit() {
     // ВСТАВЬТЕ СВОЙ API KEY ИЗ FIREBASE КОНФИГА В СТРОКУ НИЖЕ:
     const FIREBASE_API_KEY = "AIzaSyDl3SAgseXWdc4AEwFncZ0QDPWODNdcykY"; 
     
+    let isSignUpMode = true 
     const url = isSignUpMode 
-    ? "https://identitoolkit.googleapis.com/v1/accounts:signUp?key=" + FIREBASE_API_KEY 
+    ? "https://identitoolkit.googleapis.com/v1/accounts:signUp?key=" + FIREBASE_API_KEY
     : "https://identitoolkit.googleapis.com/v1/accounts:signinWithPassword?key" + FIREBASE_API_KEY;
 
 
