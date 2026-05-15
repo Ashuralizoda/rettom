@@ -916,5 +916,7 @@
             selector.innerHTML = '<option value="">Выберите, кому написать...</option>';
 
             Object.keys(currentState.users).forEach(uid => {
-                if(uid === currentState.userId) return; // Себя убираем
+                if(uid === currentState.userId) return;})
                 
+            
+        }
