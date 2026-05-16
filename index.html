@@ -1038,7 +1038,7 @@ if (isSignUpMode) {
     });
 }
 // --- ФУНКЦИЯ ПУБЛИКАЦИИ ПОСТА В RETTOM ---
-async function createNewPost() {
+function createNewPost() {
     const textInput = document.getElementById('post-text-input');
     const fileInput = document.getElementById('post-file-input');
     const postText = textInput.value.trim();
@@ -1048,57 +1048,51 @@ async function createNewPost() {
         return;
     }
 
-    let base64Image = null;
+    const submitBtn = document.querySelector('.composer-btn');
+    if(submitBtn) submitBtn.disabled = true;
 
-    // Бесплатно сжимаем и переводим картинку в текст для Realtime Database
-    if (fileInput && fileInput.files && fileInput.files[0]) {
-        base64Image = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const maxW = 800; // Оптимальный размер для смартфонов
-                    const scale = maxW / img.width;
-                    canvas.width = maxW;
-                    canvas.height = img.height * scale;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.6)); // Сжатие 60%
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(fileInput.files[0]);
-        });
+    // Внутренняя функция для отправки текстовых данных в базу
+    function sendToFirebase(base64Data) {
+        const postData = {
+            text: postText,
+            image: base64Data, // Текстовая строка картинки
+            author: localStorage.getItem('rettom_email') || 'Аноним',
+            uid: localStorage.getItem('rettom_uid'),
+            timestamp: Date.now(),
+            likes: 0
+        };
+
+        fetch("https://firebaseio.com" + localStorage.getItem('rettom_token'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(postData)
+        })
+        .then(res => {
+            if (!res.ok) throw new Error();
+            alert("Пост успешно опубликован!");
+            textInput.value = "";
+            if (fileInput) fileInput.value = "";
+            const previewImg = document.getElementById('post-image-preview');
+            if (previewImg) previewImg.src = "";
+        })
+        .catch(() => alert("Ошибка базы данных. Проверьте авторизацию!"))
+        .finally(() => { if(submitBtn) submitBtn.disabled = false; });
     }
 
-    const postData = {
-        text: postText,
-        image: base64Image, // Передается как текстовая строка
-        author: localStorage.getItem('rettom_email') || 'Аноним',
-        uid: localStorage.getItem('rettom_uid'),
-        timestamp: Date.now(),
-        likes: 0
-    };
-
-    // Отправляем в вашу Realtime Database
-    fetch("https://firebaseio.com" + localStorage.getItem('rettom_token'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(postData)
-    })
-    .then(res => {
-        if (!res.ok) throw new Error();
-        alert("Пост успешно опубликован!");
-        textInput.value = "";
-        if (fileInput) fileInput.value = "";
-        
-        // Скрываем превью картинки после публикации
-        const previewImg = document.getElementById('post-image-preview');
-        if (previewImg) previewImg.src = "";
-    })
-    .catch(() => alert("Ошибка базы данных. Проверьте авторизацию!"));
+    // Если пользователь прикрепил файл, читаем его обычным способом
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Отправляем пост вместе с картинкой Base64
+            sendToFirebase(e.target.result);
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        // Если картинки нет, отправляем только текст
+        sendToFirebase(null);
+    }
 }
+
 
 // --- КОНЕЦ ЛОГИКИ АВТОРИЗАЦИИ ---
 
