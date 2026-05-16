@@ -763,14 +763,17 @@
 }
 
 
-            const postData = {
-                uid: currentState.userId,
-                author: currentState.userNickname,
-                text: text,
-                image: currentState.attachedBase64Image || null,
-                timestamp: Date.now(),
-                likesCount: 0
-            };
+                   const text = document.getElementById('post-text-input').value.trim();
+
+        const postData = {
+            uid: currentState.userId,
+            author: currentState.userNickname,
+            text: text,
+            image: currentState.attachedBase64Image || null,
+            timestamp: Date.now(),
+            likesCount: 0
+        };
+
 
             try {
                 const url = `${DATABASE_URL}/posts.json?auth=${currentState.userToken}`;
@@ -976,7 +979,12 @@ function toggleAuthMode() {
     }
 }
 
-function handleAuthSubmit() {
+function handleAuthSubmit() {}
+// Добавьте эти две строки в самый конец файла (перед последней закрывающей скобкой } функции startApp)
+window.toggleAuthMode = toggleAuthMode;
+window.handleAuthSubmit = handleAuthSubmit;
+
+{
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
 
