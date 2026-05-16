@@ -1025,18 +1025,17 @@ if (isSignUpMode) {
         
         if (typeof initApp === 'function') initApp();
     })
-    .catch(async err => {
+        .catch(err => {
         submitBtn.textContent = isSignUpMode ? 'Зарегистрироваться' : 'Войти';
         submitBtn.disabled = false;
         
-        try {
-            const errData = await err.json();
+        err.json().then(errData => {
             alert('Ошибка Firebase: ' + errData.error.message);
-        } catch(e) {
+        }).catch(() => {
             alert('Ошибка сети или неверный API ключ!');
-        }
+        });
     });
-}
+  }
 // --- ФУНКЦИЯ ПУБЛИКАЦИИ ПОСТА В RETTOM ---
 function createNewPost() {
     const textInput = document.getElementById('post-text-input');
